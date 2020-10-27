@@ -20,7 +20,7 @@ function sameArray(array1, array2) {
 	} else {
 		pzpr.classmgr.makeCustom(pidlist, classbase);
 	}
-})(["nonogram"], {
+})(["nonogram", "corral"], {
 	MouseEvent: {
 		use: true,
 		inputModes: { edit: ["number"], play: ["shade", "unshade"] },
@@ -61,6 +61,13 @@ function sameArray(array1, array2) {
 			} else {
 				this.inputqnum_main(excell);
 			}
+		}
+	},
+
+	"MouseEvent@corral": {
+		inputModes: {
+			edit: ["number", "clear", "info-blk"],
+			play: ["shade", "unshade", "info-blk"]
 		}
 	},
 
@@ -221,6 +228,20 @@ function sameArray(array1, array2) {
 		}
 	},
 
+	"BoardExec@corral": {
+		adjustBoardData2: function(key, d) {
+			this.adjustExCellTopLeft_2(key, d, true);
+		}
+	},
+
+	"AreaUnshadeGraph@corral": {
+		enabled: true
+	},
+
+	"AreaShadeGraph@corral": {
+		enabled: true
+	},
+
 	Graphic: {
 		enablebcolor: true,
 
@@ -303,6 +324,8 @@ function sameArray(array1, array2) {
 	AnsCheck: {
 		checklist: ["checkNonogram"],
 
+		excellsInUnknownOrder: false,
+
 		checkNonogram: function() {
 			this.checkRowsCols(this.isExCellCount, "exNoMatch");
 		},
@@ -325,6 +348,11 @@ function sameArray(array1, array2) {
 			}
 
 			var lines = this.getLines(clist);
+
+			if (this.excellsInUnknownOrder) {
+				nums.sort();
+				lines.sort();
+			}
 
 			if (!sameArray(nums, lines)) {
 				clist.seterr(1);
@@ -353,10 +381,46 @@ function sameArray(array1, array2) {
 		}
 	},
 
+	"AnsCheck@corral": {
+		checklist: [
+			"check2x2ShadeCell",
+			"checkConnectUnshadeOutside",
+			"checkNonogram",
+			"checkConnectShade"
+		],
+
+		excellsInUnknownOrder: true,
+
+		checkConnectUnshadeOutside: function() {
+			var bd = this.board;
+			for (var r = 0; r < bd.ublkmgr.components.length; r++) {
+				var clist = bd.ublkmgr.components[r].clist;
+				var d = clist.getRectSize();
+				if (
+					d.x1 === 1 ||
+					d.x2 === bd.maxbx - 1 ||
+					d.y1 === 1 ||
+					d.y2 === bd.maxby - 1
+				) {
+					continue;
+				}
+				this.failcode.add("cuConnOut");
+				if (this.checkOnly) {
+					break;
+				}
+				clist.seterr(1);
+			}
+		}
+	},
+
 	FailCode: {
 		exNoMatch: [
 			"(please translate) The shaded cells don't match the clues in the row or column.",
 			"The shaded cells don't match the clues in the row or column."
+		],
+		cuConnOut: [
+			"(please translate) Some unshaded cells are not connected to the outside.",
+			"Some unshaded cells are not connected to the outside."
 		]
 	}
 });

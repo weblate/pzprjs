@@ -114,6 +114,7 @@ function toBGimage(pid) {
 		"balance",
 		"castle",
 		"compass",
+		"corral",
 		"curvedata",
 		"dbchoco",
 		"detour",
