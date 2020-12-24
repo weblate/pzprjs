@@ -9,7 +9,7 @@
 	} else {
 		pzpr.classmgr.makeCustom(pidlist, classbase);
 	}
-})(["fillomino", "symmarea"], {
+})(["fillomino", "symmarea", "snakepit"], {
 	//---------------------------------------------------------
 	// マウス入力系
 	MouseEvent: {
@@ -149,6 +149,30 @@
 			return false;
 		}
 	},
+	"KeyEvent@snakepit": {
+		keyinput: function(ca) {
+			if (this.puzzle.editmode) {
+				var cell = this.cursor.getc();
+				if (cell.isnull) {
+					return;
+				}
+				if (ca === "q" || ca === "a" || ca === "z") {
+					cell.setQues(1);
+					cell.draw();
+					return;
+				} else if (ca === "w" || ca === "s" || ca === "x") {
+					cell.setQues(6);
+					cell.draw();
+					return;
+				} else if (ca === "e" || ca === "d" || ca === "c") {
+					cell.setQues(0);
+					cell.draw();
+					return;
+				}
+			}
+			this.key_inputqnum(ca);
+		}
+	},
 
 	//---------------------------------------------------------
 	// 盤面管理系
@@ -193,6 +217,19 @@
 			});
 		}
 	},
+	"Cell@snakepit": {
+		minnum: 2,
+
+		equalcount: function() {
+			if (this.getNum() === -1) {
+				return 0;
+			}
+			var blk = this.eqblk;
+			return this.countDir4Cell(function(adj) {
+				return adj.eqblk === blk;
+			});
+		}
+	},
 	Border: {
 		posthook: {
 			qans: function(num) {
@@ -221,6 +258,13 @@
 			}
 			var num = block.clist[0].getNum();
 			var newcmp = num === block.clist.length ? 1 : 0;
+
+			if (this.puzzle.pid === "snakepit") {
+				if (num === 1) {
+					newcmp = 0;
+				}
+			}
+
 			if (newcmp !== this.qcmp) {
 				this.setQcmp(newcmp);
 				this.draw();
@@ -353,6 +397,14 @@
 		gridcolor_type: "DLIGHT",
 
 		bordercolor_func: "qans",
+		bgcellcolor_func: "icebarn",
+		icecolor: "rgb(204,204,204)",
+
+		getCircleStrokeColor: function(cell) {
+			return cell.ques === 1 ? this.quescolor : null;
+		},
+		circlefillcolor_func: "null",
+		numbercolor_func: "qnum",
 
 		autocmp: "border",
 
@@ -361,6 +413,7 @@
 			this.drawTargetSubNumber();
 			this.drawDashedGrid();
 
+			this.drawCircles();
 			this.drawSubNumbers();
 			this.drawAnsNumbers();
 			this.drawQuesNumbers();
@@ -391,15 +444,47 @@
 			this.fio.encodeCellQnum_kanpen();
 		}
 	},
+	"Encode@snakepit": {
+		decodePzpr: function(type) {
+			this.decodeNumber16();
+			this.decodeQues();
+		},
+		encodePzpr: function(type) {
+			this.encodeNumber16();
+			this.encodeQues();
+		},
+		decodeQues: function() {
+			this.genericDecodeThree(function(cell, val) {
+				cell.ques = [0, 1, 6][val];
+			});
+		},
+		encodeQues: function() {
+			this.genericEncodeThree(function(cell) {
+				return cell.ques === 6 ? 2 : cell.ques;
+			});
+		}
+	},
 	//---------------------------------------------------------
 	FileIO: {
 		decodeData: function() {
 			this.decodeCellQnum();
+			if (this.puzzle.pid === "snakepit") {
+				this.decodeCell(function(cell, ca) {
+					cell.ques = ca !== "." ? +ca : 0;
+				});
+			}
+
 			this.decodeCellAnumsub();
 			this.decodeBorderAns();
 		},
 		encodeData: function() {
 			this.encodeCellQnum();
+			if (this.puzzle.pid === "snakepit") {
+				this.encodeCell(function(cell) {
+					return cell.ques >= 0 ? cell.ques + " " : ". ";
+				});
+			}
+
 			this.encodeCellAnumsub();
 			this.encodeBorderAns();
 		},
@@ -450,6 +535,11 @@
 	// 正解判定処理実行部
 	AnsCheck: {
 		checklist: [
+			"checkMinNum@snakepit",
+			"check2x2SameNumber@snakepit",
+			"checkNumberBranch@snakepit",
+			"checkNumberLoop@snakepit",
+
 			"checkSmallArea",
 			"checkSideAreaNumberSize",
 			"checkLargeArea",
@@ -516,10 +606,78 @@
 			}
 		},
 		checkNoNumCell_fillomino: function() {
-			if (this.puzzle.getConfig("forceallcell")) {
+			if (
+				this.puzzle.pid === "snakepit" ||
+				this.puzzle.getConfig("forceallcell")
+			) {
 				this.checkAllCell(function(cell) {
 					return cell.noNum();
 				}, "ceNoNum");
+			}
+		}
+	},
+
+	"AnsCheck@snakepit": {
+		checkMinNum: function() {
+			this.checkAllCell(function(cell) {
+				return cell.getNum() === 1;
+			}, "nmEqOne");
+		},
+		check2x2SameNumber: function() {
+			var bd = this.board;
+			allloop: for (var c = 0; c < bd.cell.length; c++) {
+				var cell = bd.cell[c],
+					bx = cell.bx,
+					by = cell.by;
+				if (bx >= bd.maxbx - 1 || by >= bd.maxby - 1) {
+					continue;
+				}
+
+				var clist = bd.cellinside(bx, by, bx + 2, by + 2);
+				if (clist[0].anum <= 0) {
+					continue;
+				}
+				for (var i = 1; i < 4; i++) {
+					if (clist[0].anum !== clist[i].anum) {
+						continue allloop;
+					}
+				}
+
+				this.failcode.add("nmSame2x2");
+				if (this.checkOnly) {
+					break;
+				}
+				clist.seterr(1);
+			}
+		},
+
+		checkNumberBranch: function() {
+			this.checkAllCell(function(cell) {
+				return cell.equalcount() > 2;
+			}, "nmBranch");
+		},
+
+		checkNumberLoop: function() {
+			var snakes = this.board.eqblkgraph.components;
+			for (var r = 0; r < snakes.length; r++) {
+				var clist = snakes[r].clist;
+				var invalid = true;
+
+				for (var i = 0; i < clist.length; i++) {
+					var cell = clist[i];
+					if (cell.equalcount() !== 2) {
+						invalid = false;
+						break;
+					}
+				}
+
+				if (invalid) {
+					this.failcode.add("nmLoop");
+					clist.seterr(1);
+					if (this.checkOnly) {
+						break;
+					}
+				}
 			}
 		}
 	},
@@ -544,6 +702,33 @@
 		bkNotSymmRoom: [
 			"部屋の形が点対称ではありません。",
 			"An area is not point symmetric."
+		]
+	},
+
+	"FailCode@snakepit": {
+		nmEqOne: [
+			"(please translate) There is a snake of length 1.",
+			"There is a snake of length 1."
+		],
+		nmSame2x2: [
+			"(please translate) A snake loops back on itself.",
+			"A snake loops back on itself."
+		],
+		nmBranch: [
+			"(please translate) A snake branches off.",
+			"A snake branches off."
+		],
+		nmLoop: [
+			"(please translate) A snake has no head or tail.",
+			"A snake has no head or tail."
+		],
+		nmEndpoint: [
+			"(please translate) A circle is not on an endpoint.",
+			"A circle is not on an endpoint."
+		],
+		nmMidpoint: [
+			"(please translate) A grey cell is not a middle part of a snake.",
+			"A grey cell is not a middle part of a snake."
 		]
 	}
 });
