@@ -23,7 +23,7 @@ function sameArray(array1, array2) {
 })(["nonogram"], {
 	MouseEvent: {
 		use: true,
-		inputModes: { edit: ["number"], play: ["shade", "unshade"] },
+		inputModes: { edit: ["number"], play: ["shade", "unshade", "completion"] },
 
 		mouseinput: function() {
 			// オーバーライド
@@ -40,6 +40,9 @@ function sameArray(array1, array2) {
 		},
 		mouseinput_auto: function() {
 			if (this.puzzle.playmode) {
+				if (this.mousestart) {
+					this.inputqcmp();
+				}
 				if (this.mousestart || this.mousemove) {
 					this.inputcell();
 				}
@@ -61,6 +64,18 @@ function sameArray(array1, array2) {
 			} else {
 				this.inputqnum_main(excell);
 			}
+		},
+
+		inputqcmp: function() {
+			var excell = this.getcell_excell();
+			if (excell.isnull || excell.group !== "excell") {
+				return;
+			}
+
+			excell.setQcmp(+!excell.qcmp);
+			excell.draw();
+
+			this.mousereset();
 		}
 	},
 
@@ -247,6 +262,15 @@ function sameArray(array1, array2) {
 				: null;
 		},
 
+		getQuesNumberColor: function(cell) {
+			if (cell.error === 1) {
+				return this.errcolor1;
+			} else if (cell.qcmp === 1) {
+				return this.qcmpcolor;
+			}
+			return this.quescolor;
+		},
+
 		getBoardCols: function() {
 			return this.getOffsetCols() + this.board.maxbx / 2;
 		},
@@ -283,6 +307,10 @@ function sameArray(array1, array2) {
 				if (ca === ".") {
 					return;
 				} else if (obj.group === "excell" && !obj.isnull) {
+					if (ca[0] === "c") {
+						ca = ca.substr(1);
+						obj.qcmp = 1;
+					}
 					obj.qnum = +ca;
 				} else if (obj.group === "cell") {
 					if (ca === "#") {
@@ -296,6 +324,9 @@ function sameArray(array1, array2) {
 		encodeData: function() {
 			this.encodeCellExCell(function(obj) {
 				if (obj.group === "excell" && !obj.isnull && obj.qnum !== -1) {
+					if (obj.qcmp === 1) {
+						return "c" + obj.qnum + " ";
+					}
 					return obj.qnum + " ";
 				} else if (obj.group === "cell") {
 					if (obj.qans === 1) {
