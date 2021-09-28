@@ -3,14 +3,13 @@ import { VercelResponse, VercelRequestQuery } from '@vercel/node';
 import { parse_query, pzvdetails } from "./tools"
 
 const pzprdir = 'dist';
-const templates = 'src-api/templates';
 
 const rawpage = fs.readFileSync(pzprdir + '/p.html', 'utf8');
 const parts = rawpage.split(/<title>[^<]*<\/title>/i);
 const head = parts[0];
 const body = parts[1];
-const metatmpl = fs.readFileSync(templates + '/meta.template', 'utf8');
-const callbacktmpl = fs.readFileSync(templates + '/callback.template', 'utf8');
+const metatmpl = fs.readFileSync(pzprdir + '/meta.template.html', 'utf8');
+const callbacktmpl = fs.readFileSync(pzprdir + '/callback.template.html', 'utf8');
 
 function substitute(tmpl: string, vars: Record<string, string>): string {
 	for (var key in vars) {
