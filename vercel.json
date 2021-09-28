@@ -1,7 +1,10 @@
 {
 	"functions": {
+		"api/p.ts": {
+			"includeFiles": "@(dist/p.html|src-api/templates/*.template)"
+		},
 		"api/pv.ts": {
-			"includeFiles": "dist/js/**.js"
+			"includeFiles": "dist/js/**"
 		}
 	}
 }
