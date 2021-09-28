@@ -43,6 +43,7 @@
   },
   "dependencies": {
     "@vercel/node": "^1.12.1",
+    "canvas": "^1.6.12",
     "pzpr-canvas": "^0.8.2",
     "source-map-support": "^0.5.17"
   }

@@ -1,7 +1,0 @@
-{
-	"functions": {
-		"api/p.ts": {
-			"includeFiles": "dist/js/pzpr.js"
-		}
-	}
-}
