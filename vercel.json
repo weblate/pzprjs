@@ -1,0 +1,7 @@
+{
+	"functions": {
+		"api/p.ts": {
+			"includeFiles": "dist/p.html"
+		}
+	}
+}
