@@ -2,8 +2,8 @@ import fs = require('fs');
 import { VercelResponse, VercelRequestQuery } from '@vercel/node';
 import { parse_query, pzvdetails } from "./tools"
 
-const pzprdir = process.env.PZPR_DIR || 'dist';
-const templates = process.env.TEMPLATE_DIR || 'src-api/templates';
+const pzprdir = 'dist';
+const templates = 'src-api/templates';
 
 const rawpage = fs.readFileSync(pzprdir + '/p.html', 'utf8');
 const parts = rawpage.split(/<title>[^<]*<\/title>/i);
