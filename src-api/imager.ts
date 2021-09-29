@@ -52,6 +52,7 @@ export function preview(res: VercelResponse, query: VercelRequestQuery) {
 		const svg = Buffer.from(p.toBuffer('svg', 0, 30));
 
 		res.setHeader('Content-Type', 'image/png')
+		res.setHeader('Cache-Control', 'max-age=86400, s-maxage=2592000')
 
 		const s = sharp(svg)
 			.toFormat('png')
