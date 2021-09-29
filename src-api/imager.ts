@@ -1,5 +1,6 @@
 import { VercelResponse, VercelRequestQuery } from "@vercel/node";
 import { parse_query, pzvdetails } from "./tools"
+import sharp from "sharp"
 import pzpr from "../dist/js/pzpr.js"
 
 export function preview(res: VercelResponse, query: VercelRequestQuery) {
@@ -48,10 +49,15 @@ export function preview(res: VercelResponse, query: VercelRequestQuery) {
 		p.setMode('play');
 		p.setConfig('undefcell', false);
 		p.setConfig('autocmp', false);
-		const png = p.toBuffer('png', 0, 30);
+		const svg = Buffer.from(p.toBuffer('svg', 0, 30));
 
-		// TODO apply shape
 		res.setHeader('Content-Type', 'image/png')
-		res.end(png)
+
+		const s = sharp(svg)
+			.toFormat('png')
+			.pipe(res)
+
+		// TODO apply mask and resize
+		// TODO install fonts
 	});
 }
