@@ -1,21 +1,25 @@
-import { VercelRequestQuery } from "@vercel/node";
 import pzpr from "../dist/js/pzpr.js"
 
-export function parse_query(query: VercelRequestQuery) {
+export function parse_query(url: string) {
+	const query = url.split("?", 2)[1];
+
+	if(!query)
+		return null;
+
+	const parts = decodeURIComponent(query).split('&');
 	var args = {
 		thumb: false,
 		frame: 0,
 		svgout: false,
 		pzv: '',
 	};
-
-	for (var [part, value] of new Map(Object.entries(query))) {
+	for (var part of parts) {
 		if (part === 'thumb') {
 			args.thumb = true;
 		} else if (part === 'svg') {
 			args.svgout = true;
-		} else if (part === 'frame') {
-			args.frame = +value;
+		} else if (part.match(/^frame=([0-9]+)$/)) {
+			args.frame = +RegExp.$1
 		} else if (args.pzv === '' && part.match(/^[\w-]+\//)) {
 			args.pzv = part;
 		}

@@ -18,10 +18,10 @@ function substitute(tmpl: string, vars: Record<string, string>): string {
 	return tmpl;
 }
 
-export function sendPage(res: VercelResponse, query: VercelRequestQuery) {
-	var qargs = parse_query(query);
+export function sendPage(res: VercelResponse, url: string) {
+	var qargs = parse_query(url);
 
-	if (!qargs.pzv) {
+	if (!qargs || !qargs.pzv) {
 		res.statusCode = 200;
 		res.setHeader('Content-Type', 'text/html');
 		res.write(head);

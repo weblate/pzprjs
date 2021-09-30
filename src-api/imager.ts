@@ -3,17 +3,12 @@ import { parse_query, pzvdetails } from "./tools"
 import sharp from "sharp"
 import pzpr from "../dist/js/pzpr.js"
 
-export function preview(res: VercelResponse, query: VercelRequestQuery) {
-	if (!query) {
+export function preview(res: VercelResponse, url: string) {
+	var qargs = parse_query(url);
+	if (!qargs || !qargs.pzv) {
 		res.statusCode = 400;
 		res.end();
-		return;
-	}
-	var qargs = parse_query(query);
-	if (!qargs.pzv) {
-		res.statusCode = 400;
-		res.end();
-		console.log('no pzv found:', query);
+		console.log('no pzv found');
 		return;
 	}
 	// deal with <type>_edit links
