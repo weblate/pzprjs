@@ -1,6 +1,6 @@
 import fs = require('fs');
 import path = require('path');
-import { VercelResponse, VercelRequestQuery } from '@vercel/node';
+import { VercelResponse } from '@vercel/node';
 import { parse_query, pzvdetails } from "./tools"
 
 const rawpage = fs.readFileSync(path.resolve(process.cwd(), 'dist', 'p.html'), 'utf8');
