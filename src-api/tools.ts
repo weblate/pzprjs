@@ -14,9 +14,9 @@ export function parse_query(url: string) {
 		pzv: '',
 	};
 	for (var part of parts) {
-		if (part === 'thumb=') {
+		if (part === "thumb" || part === 'thumb=') {
 			args.thumb = true;
-		} else if (part === 'svg=') {
+		} else if (part === "svg" || part === 'svg=') {
 			args.svgout = true;
 		} else if (part.match(/^frame=([0-9]+)$/)) {
 			args.frame = +RegExp.$1
