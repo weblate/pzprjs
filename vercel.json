@@ -1,8 +1,5 @@
 {
 	"functions": {
-		"api/p.ts": {
-			"includeFiles": "dist/*.html"
-		},
 		"api/pv.ts": {
 			"includeFiles": "dist/js/**"
 		}
