@@ -7,16 +7,8 @@ import pzpr from "../dist/js/pzpr.js"
 
 const fontPath = path.resolve(process.cwd(), 'src-api/fonts')
 path.resolve(fontPath, 'NotoSansJP-Regular.otf') // Reference font so it gets copied
+path.resolve(fontPath, 'fonts.conf') // Reference conf so it gets copied
 
-const fontsConf = `<?xml version="1.0"?>
-<!DOCTYPE fontconfig SYSTEM "fonts.dtd">
-<fontconfig>
-  <dir>` + fontPath + `</dir>
-  <cachedir>/tmp/fonts-cache/</cachedir>
-  <config></config>
-</fontconfig>`
-
-fs.writeFileSync(path.join(fontPath, 'fonts.conf'), fontsConf)
 process.env.FONTCONFIG_PATH=fontPath
 
 const maskHoriz = fs.readFileSync(path.resolve(process.cwd(), 'src-api/img', 'mask-horiz.png'));
