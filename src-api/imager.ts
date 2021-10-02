@@ -35,7 +35,7 @@ export function preview(res: VercelResponse, url: string) {
 
 	const canvas = {};
 	const p = new pzpr.Puzzle(canvas);
-	p.open(pzv, () => {
+	p.open(pzv, async () => {
 		p.setMode('play');
 		p.setConfig('undefcell', false);
 		p.setConfig('autocmp', false);
@@ -70,23 +70,54 @@ export function preview(res: VercelResponse, url: string) {
 		const s = sharp(svg)
 			.trim()
 			.toFormat('png')
+		
+		var newWidth: number
+		var newHeight: number
 
 		if(qargs.thumb) {
 			switch(shape) {
 				case Shape.Square:
 					s.resize({width: 200, height: 200, fit: "inside"})
+					const meta = await s.metadata()
+					newWidth = meta.width || 0
+					newHeight = meta.height || 0
+					if(newWidth > newHeight) {
+						newHeight *= 200 / newWidth
+						newWidth = 200
+					} else {
+						newWidth *= 200 / newHeight
+						newHeight = 200
+					}
 					break
 				case Shape.Tall:
 					s.resize({width: 120})
 					s.extract({ left: 0, top: 0, width: 120, height: 200 })
 					s.composite([{ input: maskVert, blend: 'dest-in' }])
+					newWidth = 120
+					newHeight = 200
 					break
 				case Shape.Wide:
 					s.resize({height: 120})
 					s.extract({ left: 0, top: 0, width: 200, height: 120 })
 					s.composite([{ input: maskHoriz, blend: 'dest-in' }])
+					newWidth = 200
+					newHeight = 120
 					break
 			}
+		} else {
+			const meta = await s.metadata()
+			newWidth = meta.width || 0
+			newHeight = meta.height || 0
+		}
+
+		if(qargs.frame > 0) {
+			s.extend({
+				top: Math.floor(newHeight * qargs.frame),
+				bottom: Math.floor(newHeight * qargs.frame),
+				left: Math.floor(newWidth * qargs.frame),
+				right: Math.floor(newWidth * qargs.frame),
+				background: { r: 0, g: 0, b: 0, alpha: 0}
+			})
 		}
 
 		s.pipe(res)

@@ -19,7 +19,7 @@ export function parse_query(url: string) {
 		} else if (part === "svg" || part === 'svg=') {
 			args.svgout = true;
 		} else if (part.match(/^frame=([0-9]+)$/)) {
-			args.frame = +RegExp.$1
+			args.frame = Math.max(0, Math.min(100, +RegExp.$1)) / 100.0
 		} else if (args.pzv === '' && part.match(/^[\w-]+\//)) {
 			args.pzv = part;
 		}
