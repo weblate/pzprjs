@@ -23,6 +23,7 @@ export function sendPage(res: VercelResponse, url: string) {
 	if (!qargs || !qargs.pzv) {
 		res.statusCode = 200;
 		res.setHeader('Content-Type', 'text/html');
+		res.setHeader('Cache-Control', 'max-age=0, s-maxage=2592000')
 		res.write(head);
 		res.write(substitute(callbacktmpl, {}));
 		res.end(body);
@@ -50,6 +51,7 @@ export function sendPage(res: VercelResponse, url: string) {
 		};
 		res.statusCode = 200;
 		res.setHeader('Content-Type', 'text/html');
+		res.setHeader('Cache-Control', 'max-age=0, s-maxage=2592000')
 		res.write(head);
 		res.write(substitute(metatmpl, vars));
 		res.write(substitute(callbacktmpl, vars));
@@ -58,6 +60,7 @@ export function sendPage(res: VercelResponse, url: string) {
 		console.log('caught error', err, 'sending raw page');
 		res.statusCode = 200;
 		res.setHeader('Content-Type', 'text/html');
+		res.setHeader('Cache-Control', 'max-age=0, s-maxage=2592000')
 		res.end(rawpage);
 	}
 }
