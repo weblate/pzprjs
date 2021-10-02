@@ -5,6 +5,20 @@ import { parse_query, pzvdetails } from "./tools"
 import sharp from "sharp"
 import pzpr from "../dist/js/pzpr.js"
 
+const fontPath = path.resolve(process.cwd(), 'src-api/fonts')
+path.resolve(fontPath, 'NotoSansJP-Regular.otf') // Reference font so it gets copied
+
+const fontsConf = `<?xml version="1.0"?>
+<!DOCTYPE fontconfig SYSTEM "fonts.dtd">
+<fontconfig>
+  <dir>` + fontPath + `</dir>
+  <cachedir>/tmp/fonts-cache/</cachedir>
+  <config></config>
+</fontconfig>`
+
+fs.writeFileSync(path.join(fontPath, 'fonts.conf'), fontsConf)
+process.env.FONTCONFIG_PATH=fontPath
+
 const maskHoriz = fs.readFileSync(path.resolve(process.cwd(), 'src-api/img', 'mask-horiz.png'));
 const maskVert = fs.readFileSync(path.resolve(process.cwd(), 'src-api/img', 'mask-vert.png'));
 
@@ -84,7 +98,5 @@ export function preview(res: VercelResponse, url: string) {
 		}
 
 		s.pipe(res)
-
-		// TODO install fonts
 	});
 }
