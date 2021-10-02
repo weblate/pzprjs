@@ -68,7 +68,7 @@ export function preview(res: VercelResponse, url: string) {
 		if(qargs.thumb) {
 			switch(shape) {
 				case Shape.Square:
-					s.resize(200, 200)
+					s.resize({width: 200, height: 200, fit: "inside"})
 					break
 				case Shape.Tall:
 					s.resize({width: 120})
