@@ -1,7 +1,12 @@
+import fs = require('fs');
+import path = require('path');
 import { VercelResponse } from "@vercel/node";
 import { parse_query, pzvdetails } from "./tools"
 import sharp from "sharp"
 import pzpr from "../dist/js/pzpr.js"
+
+const maskHoriz = fs.readFileSync(path.resolve(process.cwd(), 'src-api/img', 'mask-horiz.png'));
+const maskVert = fs.readFileSync(path.resolve(process.cwd(), 'src-api/img', 'mask-vert.png'));
 
 export function preview(res: VercelResponse, url: string) {
 	var qargs = parse_query(url);
@@ -68,17 +73,18 @@ export function preview(res: VercelResponse, url: string) {
 				case Shape.Tall:
 					s.resize({width: 120})
 					s.extract({ left: 0, top: 0, width: 120, height: 200 })
+					s.composite([{ input: maskVert, blend: 'dest-in' }])
 					break
 				case Shape.Wide:
 					s.resize({height: 120})
 					s.extract({ left: 0, top: 0, width: 200, height: 120 })
+					s.composite([{ input: maskHoriz, blend: 'dest-in' }])
 					break
 			}
 		}
 
 		s.pipe(res)
 
-		// TODO apply mask
 		// TODO install fonts
 	});
 }
