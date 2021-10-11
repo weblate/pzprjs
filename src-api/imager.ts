@@ -39,7 +39,21 @@ export function preview(res: VercelResponse, url: string) {
 		p.setMode('play');
 		p.setConfig('undefcell', false);
 		p.setConfig('autocmp', false);
-		const svg = Buffer.from(p.toBuffer('svg', 0, 30));
+
+		var svgTxt: string = p.toBuffer('svg', 0, 30);
+
+		// Manually set overflow attribute on ImageTile tags
+		while(svgTxt.indexOf('<use x=') !== -1) {
+			svgTxt = svgTxt.replace('<use x=', '<use overflow="hidden" x=');
+		}
+
+		// Inject background into svg
+		const endIndex = svgTxt.indexOf('<g shape-rendering');
+		svgTxt = svgTxt.slice(0, endIndex) +
+				'<rect x="-100" y="-100" width="1000%" height="1000%" fill="white" />' +
+				svgTxt.slice(endIndex);
+
+		const svg = Buffer.from(svgTxt);
 
 		if (qargs.svgout) {
 			res.statusCode = 200;
@@ -68,7 +82,7 @@ export function preview(res: VercelResponse, url: string) {
 		res.setHeader('Cache-Control', 'max-age=86400, s-maxage=2592000')
 
 		const s = sharp(svg)
-			.trim()
+			.trim(0.001)
 			.toFormat('png')
 		
 		var newWidth: number
