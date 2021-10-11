@@ -42,6 +42,14 @@ export function preview(res: VercelResponse, url: string) {
 
 		var svgTxt: string = p.toBuffer('svg', 0, 30);
 
+		if (qargs.svgout) {
+			res.statusCode = 200;
+			res.setHeader('Content-Type', 'image/svg+xml');
+			res.setHeader('Cache-Control', 'max-age=86400, s-maxage=2592000')
+			res.end(svgTxt);
+			return;
+		}
+
 		// Manually set overflow attribute on ImageTile tags
 		while(svgTxt.indexOf('<use x=') !== -1) {
 			svgTxt = svgTxt.replace('<use x=', '<use overflow="hidden" x=');
@@ -54,13 +62,6 @@ export function preview(res: VercelResponse, url: string) {
 				svgTxt.slice(endIndex);
 
 		const svg = Buffer.from(svgTxt);
-
-		if (qargs.svgout) {
-			res.statusCode = 200;
-			res.setHeader('Content-Type', 'image/svg+xml');
-			res.end(svg);
-			return;
-		}
 
 		const cols = details.cols;
 		const rows = details.rows;
