@@ -43,10 +43,12 @@
     "prettier": "^1.19.1"
   },
   "dependencies": {
+    "pzpr-canvas": "0.8.2",
+    "source-map-support": "^0.5.17"
+  },
+  "optionalDependencies": {
     "@types/sharp": "^0.29.2",
     "@vercel/node": "^1.12.1",
-    "pzpr-canvas": "0.8.2",
-    "sharp": "^0.29.1",
-    "source-map-support": "^0.5.17"
+    "sharp": "^0.29.1"
   }
 }
