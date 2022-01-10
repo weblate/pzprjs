@@ -6,6 +6,10 @@
 	},
 	"rewrites": [
 		{
+			"source": "/p.html:match*",
+			"destination": "/api/clean:match*"
+		},
+		{
 			"source": "/p:match*",
 			"destination": "/api/p:match*"
 		},
