@@ -6,8 +6,20 @@
 	},
 	"redirects": [
 		{
-			"source": "/p.html:match*",
+			"source": "/p.html",
+			"destination": "/p"
+		},
+		{
+			"source": "/q.html:match*",
 			"destination": "/p:match*"
+		},
+		{
+			"source": "/r.html:match*",
+			"destination": "/p"
+		},
+		{
+			"source": "/s.html:match*",
+			"destination": "/p:match"
 		}
 	],
 	"rewrites": [
