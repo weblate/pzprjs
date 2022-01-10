@@ -3,7 +3,7 @@ import path = require('path');
 import { VercelResponse } from '@vercel/node';
 import { parse_query, pzvdetails } from "./tools"
 
-const rawpage = fs.readFileSync(path.resolve(process.cwd(), 'dist', 'p.html'), 'utf8');
+const rawpage = fs.readFileSync(path.resolve(process.cwd(), 'dist', 'p.template'), 'utf8');
 const parts = rawpage.split(/<title>[^<]*<\/title>/i);
 const head = parts[0];
 const body = parts[1];

@@ -4,6 +4,12 @@
 			"includeFiles": "dist/js/**"
 		}
 	},
+	"redirects": [
+		{
+			"source": "/p.html:match*",
+			"destination": "/p:match*"
+		}
+	],
 	"rewrites": [
 		{
 			"source": "/p:match*",
