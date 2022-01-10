@@ -17,7 +17,7 @@ function substitute(tmpl: string, vars: Record<string, string>): string {
 	return tmpl;
 }
 
-export function sendPage(res: VercelResponse, url: string) {
+export function sendPage(res: VercelResponse, host: string, url: string) {
 	var qargs = parse_query(url);
 
 	if (!qargs || !qargs.pzv) {
@@ -43,10 +43,10 @@ export function sendPage(res: VercelResponse, url: string) {
 		}
 		desc += '.';
 		var vars: Record<string, string> = {
-			'CANONICAL_URL': 'https://puzz.link/p?' + qargs.pzv,
+			'CANONICAL_URL': 'https://' + host + '/p?' + qargs.pzv,
 			'TITLE': title,
 			'DESCRIPTION': desc,
-			'PREVIEW_IMG': 'https://puzz.link/pv?frame=5&' + qargs.pzv,
+			'PREVIEW_IMG': 'https://' + host + '/pv?frame=5&' + qargs.pzv,
 			'PZV': qargs.pzv
 		};
 		res.statusCode = 200;
