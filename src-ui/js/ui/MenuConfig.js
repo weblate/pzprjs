@@ -102,6 +102,9 @@
 				case "voxas":
 					idname = "voxas_tatami";
 					break;
+				case "bdwalk":
+					idname = "bdwalk_height";
+					break;
 			}
 			if (!!idname) {
 				this.set(idname, ui.puzzle.getConfig(idname));

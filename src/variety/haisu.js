@@ -225,6 +225,18 @@
 
 			this.startpos.draw();
 			this.goalpos.draw();
+		},
+
+		findHighestNumber: function() {
+			var ret = 1;
+
+			this.cell.each(function(cell) {
+				if (cell.qnum > ret) {
+					ret = cell.qnum;
+				}
+			});
+
+			return ret;
 		}
 	},
 	LineGraph: {
@@ -442,8 +454,10 @@
 					bd.cell[c].qnum = val;
 				}
 			});
+			this.puzzle.setConfig("bdwalk_height", !this.checkpflag("m"));
 		},
 		encodePzpr: function(type) {
+			this.outpflag = !this.puzzle.getConfig("bdwalk_height") ? "m" : null;
 			var bd = this.board;
 			this.encodeSG();
 			this.genericEncodeNumber16(bd.cell.length, function(c) {
@@ -502,11 +516,13 @@
 	},
 	"FileIO@bdwalk": {
 		decodeData: function() {
+			this.decodeConfig();
 			this.decodeSG();
 			this.decodeCellQnum();
 			this.decodeBorderArrowAns();
 		},
 		encodeData: function() {
+			this.encodeConfig();
 			this.encodeSG();
 			this.encodeCellQnum();
 			this.encodeBorderArrowAns();
@@ -538,6 +554,21 @@
 					return ". ";
 				}
 			});
+		},
+
+		decodeConfig: function() {
+			if (this.dataarray[this.lineseek] === "m") {
+				this.puzzle.setConfig("bdwalk_height", false);
+				this.readLine();
+			} else {
+				this.puzzle.setConfig("bdwalk_height", true);
+			}
+		},
+
+		encodeConfig: function() {
+			if (!this.puzzle.getConfig("bdwalk_height")) {
+				this.writeLine("m");
+			}
 		}
 	},
 
@@ -668,7 +699,8 @@
 			"bdwSkipElevator",
 			"bdwInvalidUp",
 			"bdwInvalidDown",
-			"bdwGroundFloor"
+			"bdwGroundFloor",
+			"bdwTopFloor"
 		],
 
 		// Walk the path starting at the given cell. Returns a list of errors.
@@ -678,7 +710,7 @@
 		// c0: The start of the path to highlight.
 		// c1: The end of the path to highlight.
 		// dir: The direction to start from when highlighting the path.
-		walkLine: function(fromcell) {
+		walkLine: function(fromcell, maxheight) {
 			var bd = this.board;
 			var ec = bd.emptycell;
 			var ret = [];
@@ -738,10 +770,19 @@
 								? previousfloorcell.qnum - elevators.length
 								: -1;
 
+						var highestfloor =
+							currentfloorcell.qnum !== -1
+								? currentfloorcell.qnum
+								: elevatortype === -3
+								? previousfloorcell.qnum + elevators.length
+								: -1;
+
 						// If we went down to the ground floor before hitting an unknown elevator,
 						// we must go up here. Override the elevatortype variable.
 						if (cell.qnum === -2 && lowestfloor === 1) {
 							elevatortype = -3;
+						} else if (cell.qnum === -2 && highestfloor === maxheight) {
+							elevatortype = -4;
 						} else {
 							elevatortype = cell.qnum;
 						}
@@ -767,6 +808,20 @@
 					) {
 						ret.push({
 							code: "bdwGroundFloor",
+							list: [cell],
+							c0: previousfloorcell,
+							c1: cell,
+							dir: previousfloordir
+						});
+					}
+					// Check if we just went above the top floor.
+					if (
+						cell.qnum === -3 &&
+						!previousfloorcell.isnull &&
+						previousfloorcell.qnum + elevators.length > maxheight
+					) {
+						ret.push({
+							code: "bdwTopFloor",
 							list: [cell],
 							c0: previousfloorcell,
 							c1: cell,
@@ -830,9 +885,12 @@
 					}
 
 					// Check if we went up one or more times, then found a number that is too low.
-					if (elevatortype === -3 && cell.qnum - elevators.length < 1) {
+					if (
+						(elevatortype === -3 && cell.qnum - elevators.length < 1) ||
+						(elevatortype === -4 && cell.qnum + elevators.length > maxheight)
+					) {
 						ret.push({
-							code: "bdwGroundFloor",
+							code: elevatortype === -3 ? "bdwGroundFloor" : "bdwTopFloor",
 							list: [previouselevatorcell],
 							c0: !previouselevatorcell.isnull
 								? previouselevatorcell
@@ -892,6 +950,9 @@
 		},
 
 		checkBdWalkLines: function() {
+			var maxheight = this.puzzle.getConfig("bdwalk_height")
+				? 99 + this.board.rows * this.board.cols
+				: this.board.findHighestNumber();
 			var checkSingleError = !this.puzzle.getConfig("multierr");
 			var error = false;
 
@@ -913,8 +974,8 @@
 					continue;
 				}
 
-				var errsa = this.walkLine(starts[0]);
-				var errsb = this.walkLine(starts[1]);
+				var errsa = this.walkLine(starts[0], maxheight);
+				var errsb = this.walkLine(starts[1], maxheight);
 
 				if (
 					(errsa !== null && errsa.length === 0) ||
@@ -999,6 +1060,10 @@
 		bdwGroundFloor: [
 			"(please translate) The line goes below the 1st floor.",
 			"The line goes below the 1st floor."
+		],
+		bdwTopFloor: [
+			"(please translate) The line goes above the top floor.",
+			"The line goes above the top floor."
 		],
 		bdwSkipElevator: [
 			"(please translate) The line doesn't change floors at an elevator.",

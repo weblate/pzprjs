@@ -92,6 +92,10 @@
 				variant: true,
 				volatile: true
 			}); /* voxas: Rule variation for disallowing crossing borders */
+			this.add("bdwalk_height", false, {
+				variant: true,
+				volatile: true
+			}); /* bdwalk: Rule variation for allowing any height */
 			/* generic variant */
 			this.add("variant", false, { variant: true, volatile: true });
 			this.add("variantid", "", { volatile: true });
@@ -380,6 +384,9 @@
 					break;
 				case "voxas_tatami":
 					exec = pid === "voxas";
+					break;
+				case "bdwalk_height":
+					exec = pid === "bdwalk";
 					break;
 				default:
 					exec = !!this.list[name];
