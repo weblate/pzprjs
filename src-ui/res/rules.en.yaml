@@ -1,5 +1,5 @@
 bdwalk:
-  You're given a top-down view of a building of unknown height. Grey cells represent elevators.
+  You're given a top-down view of a building. Grey cells represent elevators.
 
   1. Draw a path from S to G that doesn't branch off or overlap itself at any cell.
 
@@ -11,7 +11,7 @@ bdwalk:
 
   5. A number indicates the floor that the path should be on when passing through it.
 
-  6. At no point does the path go below the 1st floor.
+  6. The height of the building is equal to the largest number on the grid. At no point does the path go below the 1st floor, or above the top floor.
 
   This genre first appeared in Puzzle Communication Nikoli vol. 174.
 
