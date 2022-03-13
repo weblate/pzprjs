@@ -39,7 +39,27 @@ ui.debug.addDebugData("bdwalk", {
 		],
 		[
 			"bdwSkipElevator",
+			"pzprv3/bdwalk/1/5/m/1 1 9 1/2 - . D 1 /1 1 1 1 /",
+			{ skiprules: false }
+		],
+		[
+			null,
+			"pzprv3/bdwalk/1/5/1 1 9 1/2 - . D 1 /1 1 1 1 /",
+			{ skiprules: false }
+		],
+		[
+			"bdwSkipElevator",
 			"pzprv3/bdwalk/1/6/m/1 1 11 1/. - 1 - U 2 /1 1 1 1 1 /",
+			{ skiprules: false }
+		],
+		[
+			"bdwSkipElevator",
+			"pzprv3/bdwalk/1/6/m/1 1 11 1/. - 2 - D 1 /1 1 1 1 1 /",
+			{ skiprules: false }
+		],
+		[
+			null,
+			"pzprv3/bdwalk/1/6/1 1 11 1/. - 2 - D 1 /1 1 1 1 1 /",
 			{ skiprules: false }
 		],
 		[
@@ -70,6 +90,16 @@ ui.debug.addDebugData("bdwalk", {
 		[
 			"bdwGroundFloor",
 			"pzprv3/bdwalk/1/5/m/1 1 9 1/2 D - U 2 /1 1 1 1 /",
+			{ skiprules: false }
+		],
+		[
+			"bdwTopFloor",
+			"pzprv3/bdwalk/1/5/m/1 1 9 1/1 U . - 2 /1 1 1 1 /",
+			{ skiprules: false }
+		],
+		[
+			"bdwTopFloor",
+			"pzprv3/bdwalk/1/5/m/1 1 9 1/2 D U - 2 /1 1 1 1 /",
 			{ skiprules: false }
 		],
 		[
